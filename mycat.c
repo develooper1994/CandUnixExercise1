@@ -363,3 +363,52 @@ int print_hex_octal_last(FILE* fp, const int nline, int hexflag){
 
     return !ferror(fp);
 }
+
+
+// https://www.geeksforgeeks.org/print-last-10-lines-of-a-given-file/
+#define DELIM   '\n'
+ 
+/* Function to print last n lines of a given string */
+void print_last_lines(char *str, int n)
+{
+    /* Base case */
+    if (n <= 0)
+       return;
+ 
+    size_t cnt  = 0; // To store count of '\n' or DELIM
+    char *target_pos   = NULL; // To store the output position in str
+ 
+    /* Step 1: Find the last occurrence of DELIM or '\n' */
+    target_pos = strrchr(str, DELIM);
+ 
+    /* Error if '\n' is not present at all */
+    if (target_pos == NULL)
+    {
+        fprintf(stderr, "ERROR: string doesn't contain '\\n' character\n");
+        return;
+    }
+ 
+    /* Step 2: Find the target position from where we need to print the string */
+    while (cnt < n)
+    {
+        // Step 2.a: Find the next instance of '\n'
+        while (str < target_pos && *target_pos != DELIM)
+            --target_pos;
+ 
+         /* Step 2.b: skip '\n' and increment count of '\n' */
+        if (*target_pos ==  DELIM)
+            --target_pos, ++cnt;
+ 
+        /* str < target_pos means str has less than 10 '\n' characters,
+           so break from loop */
+        else
+            break;
+    }
+ 
+    /* In while loop, target_pos is decremented 2 times, that's why target_pos + 2 */
+    if (str < target_pos)
+        target_pos += 2;
+ 
+    // Step 3: Print the string from target_pos
+    printf("%s\n", target_pos);
+}
