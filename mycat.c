@@ -50,10 +50,6 @@ Burada -t "text olarak yazdır",
 
 #define DELIM   '\n'
 
-#define KB        1024
-#define MB        1024*1024
-#define DATA_SIZE MB*1
-
 // function prototypes
 long filesize(FILE* fp);
 int print_text(FILE *fp, const int n, int ch);
