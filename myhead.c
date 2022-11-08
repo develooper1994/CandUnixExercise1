@@ -21,8 +21,6 @@ Burada -t "text olarak yazdır",
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <getopt.h>
 
 // symbolic constants
@@ -30,12 +28,7 @@ Burada -t "text olarak yazdır",
 #define DEFAULT_BYTE_LENGHT   10
 #define HEX_OCTAL_LINE_LENGHT 16
 
-// order
-#define ASCENDING_ORDER       0 // ascending order >=0
-#define DESCENDING_ORDER      -1 // descending order <0
-#define DEFAULT_ORDER         ASCENDING_ORDER
-
-// enumurate
+// enumurate - not implemented yet!
 #define DEFAULT_ENUMERATE     0 // enumurate >=0
 
 #define PRINT_OCTAL           0
