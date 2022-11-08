@@ -51,15 +51,14 @@ Burada -t "text olarak yazdır",
 #define DELIM   '\n'
 
 // function prototypes
+long filesize(FILE* fp);
 int print_text(FILE *fp, const int n, int ch);
 int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
-long filesize(FILE* f);
 
 //int print_text_last(FILE *fp, const int nline);
 //int print_hex_octal_last(FILE* f, const int nline, int hexflag);
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     // create options, flags and arguments and other variables
     int result=0;
     int err_flag=0, t_flag=0, o_flag=0, x_flag=0, verbose_flag=0,
@@ -227,7 +226,26 @@ int main(int argc, char *argv[])
     exit(EXIT_SUCCESS);
 }
 
+long filesize(FILE* fp) {
+    fseek(fp, 0, SEEK_END); // seek to end of file
+    long size = ftell(fp); // get current file pointer
+    fseek(fp, 0, SEEK_SET); // seek back to beginning of file
+    return size;
+}
 
+// ----------------------------- <linked list> -----------------------------------
+
+#define KB        1024
+#define MB        1024*1024
+#define data_size MB*1
+
+struct node{
+    char data[data_size];
+    struct node* next;
+};
+// ----------------------------- </linked list> -----------------------------------
+
+// ----------------------------- <print like linux head command> -----------------------------------
 // text
 int print_text(FILE *fp, const int n, int ch){
     // n == -1 => print all file
@@ -326,19 +344,12 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
 
     return !ferror(fp);
 }
+// ----------------------------- </print like linux head command> -----------------------------------
 
 
+// ----------------------------- <print like linux tail command> -----------------------------------
 
-
-long filesize(FILE* f) {
-    fseek(f, 0, SEEK_END); // seek to end of file
-    long size = ftell(f); // get current file pointer
-    fseek(f, 0, SEEK_SET); // seek back to beginning of file
-    return size;
-}
-
-
-
+// ----------------------------- </print like linux tail command> -----------------------------------
 
 // https://www.geeksforgeeks.org/print-last-10-lines-of-a-given-file/
 
