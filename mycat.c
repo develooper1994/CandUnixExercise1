@@ -1,29 +1,29 @@
 /*
 AUTHOR: Mustafa Selçuk Çağlar
-
 mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [files]
 
 Seçenekler:
-
 [argümansız]
 -t (text) (default) (thick)
 -o (octal) (thick)
 -x (hex) (thick)
 -h or --help (thick)
 -v or --verbose (thick)
-
 [argümanlı]
--c or --bytes, default n = 10 (thick)
--n or --lines, default n = 10 (thick)
--d or --order < ascending >=0 | descending order <0 >, default order = ascending
+-c or --bytes, default: 10 (thick)
+-n or --lines, default: 10 (thick)
+-d or --order < ascending >=0 (thick) | descending order <0 (working on it) >, default: ascending
 
 Burada -t "text olarak yazdır",
 -o "ocatal olarak yazdır,
 -x "hex olarak yazdır anlamına gelmektedir. Bu seçeneklerden yalnızca bir tanesi belirtilebilir ve bu seçeneklerden hiçbiri belirtilmemişse -t seçeneği belirtilmiş gibi işlem yapılmalıdır.
-
 --bytes isteğe bağlı (optional) argüman alabilen uzun bir seçenektir. Dosyanın başındaki ilk n satırı yazdırır. Bu uzun seçeneğin default değeri 10'dur. --verbose seçeneği birden fazla dosyanın yazdırıldığı durumda dosya isimlerinin de basılmasını sağlamaktadır. Programın örnek bir gerçekleştirim şöyle olabilir:
-
 */
+
+#define VERSION_MAJOR "1"
+#define VERSION_MINOR "0"
+#define VERSION_PATCH "0"
+#define VERSION VERSION_MAJOR "." VERSION_MINOR "." VERSION_PATCH
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,6 +60,7 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
 //int print_hex_octal_last(FILE* f, const int nline, int hexflag);
 
 int main(int argc, char *argv[]){
+    // ----------------------------- <print like linux head command> -----------------------------------
     // create options, flags and arguments and other variables
     int result=0;
     int err_flag=0, t_flag=0, o_flag=0, x_flag=0, verbose_flag=0,
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]){
                 verbose_flag = 1;
                 break;
             case 'h':
-                fprintf(stdout, "mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [files]");
+                fprintf(stdout, "Version: %03s\nmycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [files]", VERSION);
                 exit(EXIT_SUCCESS);
             // optional_argument
             case 'c':
@@ -252,7 +253,6 @@ void reallocate(char** buffer, size_t size){
 
 
 // ----------------------------- </linked list> -----------------------------------
-
 // ----------------------------- <print like linux head command> -----------------------------------
 // text
 int print_text(FILE *fp, const int n, int ch){
@@ -353,14 +353,13 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
     return !ferror(fp);
 }
 // ----------------------------- </print like linux head command> -----------------------------------
-
-
 // ----------------------------- <print like linux tail command> -----------------------------------
+
+
 
 // ----------------------------- </print like linux tail command> -----------------------------------
 
 // https://www.geeksforgeeks.org/print-last-10-lines-of-a-given-file/
-
 /* Function to print last n lines of a given string */
 void print_last_lines(char *str, int n){
     /* Base case */
