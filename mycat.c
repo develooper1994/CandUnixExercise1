@@ -27,9 +27,9 @@ Burada -t "text olarak yazdır",
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <getopt.h>
+
+#include "doublevector.h"
 
 // symbolic constants
 #define DEFAULT_LINE          10
@@ -50,9 +50,12 @@ Burada -t "text olarak yazdır",
 
 #define DELIM   '\n'
 
+#define KB        1024
+#define MB        1024*1024
+#define DATA_SIZE MB*1
+
 // function prototypes
 long filesize(FILE* fp);
-void reallocate(char** buffer, size_t size);
 int print_text(FILE *fp, const int n, int ch);
 int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
 
@@ -235,24 +238,8 @@ long filesize(FILE* fp) {
     return size;
 }
 
-// ----------------------------- <linked list> -----------------------------------
-
-#define KB        1024
-#define MB        1024*1024
-#define data_size MB*1
-
-struct node{
-    char data[data_size];
-    struct node* prev;
-    struct node* next;
-};
-
-void reallocate(char** buffer, size_t size){
-
-}
 
 
-// ----------------------------- </linked list> -----------------------------------
 // ----------------------------- <print like linux head command> -----------------------------------
 // text
 int print_text(FILE *fp, const int n, int ch){
