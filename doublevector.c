@@ -38,14 +38,5 @@ void append(DoubleVector* dv, char element){
     dv->data[element_index] = element;
 }
 
-void appendPointer(DoubleVector** dv_pointer, DoubleVector* dv){
-    DoubleVector* dv_temp = *dv_pointer; // TODO: ???
-    size_t buffer_size = dv_temp->__capacity * CAPACITY_FACTOR + 1;
-    size_t element_index = buffer_size - 1;
-    resize(*dv_pointer, buffer_size);
-    dv->data[element_index] = element;
-    
-}
-
 
 // ----------------------------- </doublevector> -----------------------------------
