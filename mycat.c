@@ -47,12 +47,13 @@ Burada -t "text olarak yazdır",
 
 #define PRINT_OCTAL           0
 #define PRINT_HEX             1
+#define PRINT_TEXT            2
 
 #define DELIM   '\n'
 
 // function prototypes
-int print_text(FILE *fp, const int n, int ch, int order);
-int print_hex_octal(FILE* fp, const int n, int ch, int hexflag, int order);
+int print_text(FILE *fp, const int n, int ch);
+int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
 long filesize(FILE* f);
 
 //int print_text_last(FILE *fp, const int nline);
@@ -61,21 +62,25 @@ long filesize(FILE* f);
 int main(int argc, char *argv[])
 {
     // create options, flags and arguments and other variables
-    int result=0, err_flag=0;
-    int t_flag=0, o_flag=0, x_flag=0, bytes_flag=0, lines_flag=0, order_flag=0, enumurate_flag=0, verbose_flag=0, help_flag=0;
-    char *bytes_arg, *lines_arg, *order_arg, *enumurate_arg;
+    int result=0;
+    int err_flag=0, t_flag=0, o_flag=0, x_flag=0, verbose_flag=0, help_flag=0,
+          bytes_flag=0,    lines_flag=0,    order_flag=0,    enumurate_flag=0;
+    char *bytes_arg=NULL, *lines_arg=NULL, *order_arg=NULL, *enumurate_arg=NULL;
 
     struct option long_options[] = {
+        // optional_argument
         {"bytes", optional_argument, NULL, 'c'},
         {"lines", optional_argument, NULL, 'n'},
         {"order", optional_argument, NULL, 'd'},
         {"enumurate", optional_argument, NULL, 'e'},
+        // no_argument
         {"verbose", no_argument, NULL, 'v'},
         {"help", no_argument, NULL, 'h'},
         {0,0,0,0}
     };
-    char options[] = "xotvhcn:d:e:";
+    char options[] = "xotvhc:n:d:e:";
     FILE* fp;
+    char* filename;
     int index=0;
     int nbyte=-1, nline=-1, order=DEFAULT_ORDER;
 
@@ -84,6 +89,7 @@ int main(int argc, char *argv[])
     do{
         result = getopt_long(argc, argv, options, long_options, NULL);
         switch(result){
+            // no_argument
             case 'x':
                 x_flag = 1;
                 break;
@@ -93,6 +99,14 @@ int main(int argc, char *argv[])
             case 't': // default
                 t_flag = 1;
                 break;
+            case 'v':
+                verbose_flag = 1;
+                break;
+            case 'h':
+                help_flag = 1;
+                fprintf(stdout, "mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [-e or --enumurate < enumurate >=0 | not enumurate <0 >, default: not enumurate] [files]");
+                exit(EXIT_SUCCESS);
+            // optional_argument
             case 'c':
                 bytes_flag = 1;
                 bytes_arg = optarg;
@@ -108,13 +122,6 @@ int main(int argc, char *argv[])
             case 'e':
                 enumurate_flag = 0;
                 enumurate_arg = optarg;
-                break;
-            case 'v':
-                verbose_flag = 1;
-                break;
-            case 'h':
-                help_flag = 1;
-                fprintf(stdout, "mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [-e or --enumurate < enumurate >=0 | not enumurate <0 >, default: not enumurate] [files]");
                 break;
             case '?':
                 // parsing error check
@@ -153,49 +160,44 @@ int main(int argc, char *argv[])
     }
 
     // exit according to error check
-    if(err_flag!= 0){
-        exit(EXIT_FAILURE);
-    }
+    if(err_flag!= 0){ exit(EXIT_FAILURE); }
 
     // set defaults
-    if(bytes_flag){
-        // default nbyte value
-        nbyte = bytes_arg != NULL ? 
-        (int)strtol(bytes_arg, NULL, 10) :
-        DEFAULT_BYTE_LENGHT;
-    }
-    if(lines_flag){
-        // default nline value
-        nline = bytes_arg != NULL ? 
-        (int)strtol(bytes_arg, NULL, 10) :
-        DEFAULT_BYTE_LENGHT;
-    }
-    if(order_flag){
-        // default order value
-        order = order_arg != NULL ? 
-        (int)strtol(order_arg, NULL, 10) :
-        DEFAULT_ORDER;
-    }
-    if(enumurate_flag){
-        // default not enumurate
-        order = order_arg != NULL ? 
-        (int)strtol(enumurate_arg, NULL, 10) :
-        ENUMERATE;
-    }
-
+    // default flags
     if(x_flag + o_flag + t_flag == 0){
         // non of them specified. default = text(t_flag)
         t_flag = 1;
     }
     if(bytes_flag + lines_flag == 0){
-        // non of them specified. default = text(t_flag)
+        // non of them specified. default = lines(lines_flag)
         lines_flag = 1;
+    }
+    //default values
+    if(bytes_flag){
+        nbyte = bytes_arg != NULL ?
+        (int)strtol(bytes_arg, NULL, 10) :
+        DEFAULT_BYTE_LENGHT;
+    }
+    if(lines_flag){
+        nline = lines_arg != NULL ?
+        (int)strtol(lines_arg, NULL, 10) :
+        DEFAULT_LINE;
+    }
+    if(order_flag){
+        order = order_arg != NULL ?
+        (int)strtol(order_arg, NULL, 10) :
+        DEFAULT_ORDER;
+    }
+    if(enumurate_flag){
+        order = enumurate_arg != NULL ?
+        (int)strtol(enumurate_arg, NULL, 10) :
+        ENUMERATE;
     }
 
     // process according to flags
     for(index = optind; index < argc; ++index){
         // open files if file couldn't open continue to next file
-        char* filename = argv[index];
+        filename = argv[index];
         fp = fopen(filename, "rb");
         if(fp == NULL){
             fprintf(stderr, "Cannot open file %s\n", filename);
@@ -207,39 +209,21 @@ int main(int argc, char *argv[])
         }
 
         // how do you want to print?
-        if(bytes_flag){
-            // print_byte_text
-            if(t_flag)
-                result = print_text(fp, nbyte, 0, order);
-            else if(x_flag)
-                result = print_byte_hex_octal(fp, nbyte, PRINT_HEX, order);
-            else if(o_flag)
-                result = print_hex_octal(fp, nbyte, PRINT_OCTAL, order);
-            else
-                result = print_text(fp, nbyte, 0, order);
-        }
-        else if(lines_flag){
-            // print_line_text
-            if(t_flag)
-                result = print_text(fp, nline, DELIM, order);
-            else if(x_flag)
-                result = print_hex_octal(fp, nline, PRINT_HEX, order);
-            else if(o_flag)
-                result = print_hex_octal(fp, nline, PRINT_OCTAL, order);
-            else
-                result = print_text(fp, nline, DELIM, order);
-        }
+        int ch = lines_flag ? DELIM : 0; // line_flag
+        int n  = lines_flag ? nline : nbyte;
+        if(t_flag) // default
+            result = print_text(fp, n, ch);
+        else if(x_flag)
+            result = print_hex_octal(fp, n, ch, PRINT_HEX);
+        else if(o_flag)
+            result = print_hex_octal(fp, n, ch, PRINT_OCTAL);
         /*
-        else{
-            if(t_flag)
-                result = print_text_last(fp, nbyte, nline);
-            else if(x_flag)
-                result = print_hex_octal_last(fp, nbyte, nline, PRINT_HEX);
-            else if(o_flag)
-                result = print_hex_octal_last(fp, nbyte, nline, PRINT_OCTAL);
-            else
-                result = print_text_last(fp, nbyte, nline);
-        }
+        if(t_flag)
+            result = print_text_last(fp, n, nline);
+        else if(x_flag)
+            result = print_hex_octal_last(fp, n, nline, PRINT_HEX);
+        else if(o_flag)
+            result = print_hex_octal_last(fp, n, nline, PRINT_OCTAL);
         */
 
         if(index != argc -1)
@@ -251,58 +235,53 @@ int main(int argc, char *argv[])
         fclose(fp);
     }
 
-    /*
-    // arguments without options. they are filenames
-    if(optind != argc){
-        puts("arguments without options: ");
-    }
-    */
-
-
     exit(EXIT_SUCCESS);
 }
 
 
 // text
-int print_text(FILE *fp, const int n, int ch, int order){
+int print_text(FILE *fp, const int n, int ch){
     // n == -1 => print all file
     long byte_count = 0, line_count = 0;
-    if(ch != DELIM)
-        ch=0;
     const long file_size = filesize(fp);
-    if(order>=0)
-        fseek(fp, 0, SEEK_SET);
-    else
-        fseek(fp, 0, SEEK_END); // fgetc reads and move cursor +1
+    fseek(fp, 0, SEEK_SET);
 
-    int read_until_byte=n;
-    //if(read_until_byte<0) read_until_byte = file_size - n;
+    int read_until=n;
+    //if(read_until<0) read_until = file_size - n;
 
-    if(read_until_byte == -1){
+    if(read_until == -1){
         // print all file
         for(; byte_count < file_size; ++byte_count){
         //while(ch != EOF){
             ch = fgetc(fp);
-            if(order>=0) fseek(fp, -2, SEEK_CUR);
             putchar(ch);
         }
     }
     else{
-        for(; (byte_count < file_size) && byte_count < read_until_byte; ++byte_count){
-        //for(; (ch != EOF) && count < read_until_byte; ++count){
-            ch = fgetc(fp);
-            if(order>=0) fseek(fp, -2, SEEK_CUR);
-            if(ch == DELIM) ++line_count;
-            putchar(ch);
+        if(ch == DELIM){
+            // line_count < read_until 
+            for(; (line_count < read_until) && (byte_count < file_size); ++byte_count){
+            //for(; (ch != EOF) && count < read_until_byte; ++count){
+                ch = fgetc(fp);
+                if(ch == DELIM) ++line_count;
+                putchar(ch);
+            }
+        }
+        else {
+            // byte_count < read_until
+            for(; (byte_count < read_until) && (byte_count < file_size); ++byte_count){
+            //for(; (ch != EOF) && count < read_until_byte; ++count){
+                ch = fgetc(fp);
+                putchar(ch);
+            }
         }
     }
     return !ferror(fp);
 }
 
 // hex - octal
-int print_hex_octal(FILE* fp, const int n, int ch, int hexflag, int order){
+int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
     // n == -1 => print all file
-    if(ch != DELIM) ch=0;
     int line_mod=0;
     long byte_count=0;
     const char *off_str, *ch_str;
@@ -311,12 +290,7 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag, int order){
     ch_str = hexflag? "%02X%c" : "%03o%c";
 
     const long file_size = filesize(fp);
-    if (order >= 0) {
-        fseek(fp, 0, SEEK_SET);
-    }
-    else {
-        fseek(fp, 0, SEEK_END);
-    }
+    fseek(fp, 0, SEEK_SET);
 
     int read_until_byte=n;
     //if(read_until_byte<0) read_until_byte = file_size - n;
@@ -326,7 +300,6 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag, int order){
         for(; byte_count < file_size; ++byte_count){
         //for(; ch!=EOF; ++bye_count){
             ch = fgetc(fp);
-            if(order>=0) fseek(fp, -2, SEEK_CUR);
 
             line_mod = byte_count % HEX_OCTAL_LINE_LENGHT;
             if(line_mod == 0)
@@ -336,17 +309,31 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag, int order){
     }
     else{
         int line_mod_count = 0;
-        for(; (byte_count < file_size) && line_mod_count < read_until_byte; ++byte_count){
-        //for(; ch != EOF && line_mod_count < read_until_byte; ++bye_count){
-            ch = fgetc(fp);
-            if(order>=0) fseek(fp, -2, SEEK_CUR);
+        if(ch==DELIM){
+            // 
+            for(; (line_mod_count < read_until_byte) && (line_mod_count < file_size); ++byte_count){
+            //for(; ch != EOF && line_mod_count < read_until_byte; ++bye_count){
+                ch = fgetc(fp);
 
-            line_mod = byte_count % HEX_OCTAL_LINE_LENGHT;
-            if(line_mod == 0)
-                printf(off_str, byte_count);
-            printf(ch_str, ch, line_mod == HEX_OCTAL_LINE_LENGHT - 1 ? '\n': ' ');
+                line_mod = byte_count % HEX_OCTAL_LINE_LENGHT;
+                if(line_mod == 0)
+                    printf(off_str, byte_count);
+                printf(ch_str, ch, line_mod == HEX_OCTAL_LINE_LENGHT - 1 ? '\n': ' ');
 
-            if(ch==DELIM) ++line_mod_count;
+                if(ch == DELIM) ++line_mod_count;
+            }
+        }
+        else {
+            // byte_count < read_until
+            for(; (line_mod_count < read_until_byte) && (byte_count < file_size); ++byte_count){
+            //for(; ch != EOF && line_mod_count < read_until_byte; ++bye_count){
+                ch = fgetc(fp);
+
+                line_mod = byte_count % HEX_OCTAL_LINE_LENGHT;
+                if(line_mod == 0)
+                    printf(off_str, byte_count);
+                printf(ch_str, ch, line_mod == HEX_OCTAL_LINE_LENGHT - 1 ? '\n': ' ');
+            }
         }
     }
 
@@ -357,12 +344,17 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag, int order){
     return !ferror(fp);
 }
 
+
+
+
 long filesize(FILE* f) {
     fseek(f, 0, SEEK_END); // seek to end of file
     long size = ftell(f); // get current file pointer
     fseek(f, 0, SEEK_SET); // seek back to beginning of file
     return size;
 }
+
+
 
 
 // https://www.geeksforgeeks.org/print-last-10-lines-of-a-given-file/
