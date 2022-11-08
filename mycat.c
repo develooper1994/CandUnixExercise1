@@ -52,6 +52,7 @@ Burada -t "text olarak yazdır",
 
 // function prototypes
 long filesize(FILE* fp);
+void reallocate(char** buffer, size_t size);
 int print_text(FILE *fp, const int n, int ch);
 int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
 
@@ -241,8 +242,15 @@ long filesize(FILE* fp) {
 
 struct node{
     char data[data_size];
+    struct node* prev;
     struct node* next;
 };
+
+void reallocate(char** buffer, size_t size){
+
+}
+
+
 // ----------------------------- </linked list> -----------------------------------
 
 // ----------------------------- <print like linux head command> -----------------------------------
