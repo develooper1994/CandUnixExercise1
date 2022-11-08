@@ -19,6 +19,11 @@ Burada -t "text olarak yazdır",
 --bytes isteğe bağlı (optional) argüman alabilen uzun bir seçenektir. Dosyanın başındaki ilk n satırı yazdırır. Bu uzun seçeneğin default değeri 10'dur. --verbose seçeneği birden fazla dosyanın yazdırıldığı durumda dosya isimlerinin de basılmasını sağlamaktadır. Programın örnek bir gerçekleştirim şöyle olabilir:
 */
 
+#define VERSION_MAJOR "1"
+#define VERSION_MINOR "0"
+#define VERSION_PATCH "0"
+#define VERSION VERSION_MAJOR "." VERSION_MINOR "." VERSION_PATCH
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -88,7 +93,7 @@ int main(int argc, char *argv[]){
                 verbose_flag = 1;
                 break;
             case 'h':
-                fprintf(stdout, "myhead [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]");
+                fprintf(stdout, "Version: %03s\nmyhead [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]", VERSION);
                 exit(EXIT_SUCCESS);
             // optional_argument
             case 'c':
