@@ -362,26 +362,24 @@ int print_text_last(FILE* fp, const long n, int ch){
     // n == -1 => print all file
     long byte_count=0, line_count=0;
     const long file_size = filesize(fp);
-    fseek(fp, -1, SEEK_END); // read from end of file
+    fseek(fp, 0, SEEK_END); // read from end of file
 
     vector v;
     vector_init(&v);
 
     long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
-    printf("ch: %d || n: %ld\n", ch, read_until); // debug
 
     if(n == -1){
         // print all file
         puts("<print all file>"); // debug
         for(; file_size - byte_count > 0; ++byte_count){
             ch = fgetc(fp);
+            putchar(ch); // debug
             fseek(fp, -2, SEEK_CUR);
-            //puts("<all AppendDoubleVector>"); // debug
             vector_add(&v, &ch);
-            //puts("</all AppendDoubleVector>"); // debug
         }
-        //PrintDoubleVectorReverse(container);
+        print_vector_reverse(&v);
     }
     else {
         if (ch == DELIM) {
@@ -389,23 +387,21 @@ int print_text_last(FILE* fp, const long n, int ch){
             for(; (read_until - line_count > 0) && (file_size - byte_count > 0); ++byte_count) {
                 if (ch == DELIM) ++line_count;
                 ch = fgetc(fp);
-                fseek(fp, -2, SEEK_CUR);
-                puts("<line AppendDoubleVector>"); // debug
+                putchar(ch); // debug
+                fseek(fp, -3, SEEK_CUR);
                 vector_add(&v, &ch);
-                puts("</line AppendDoubleVector>"); // debug
             }
-            //PrintDoubleVectorReverse(container);
+            print_vector_reverse(&v);
         }
         else {
             // byte_count < read_until
             for(; (read_until - byte_count > 0) && (file_size - byte_count > 0); ++byte_count) {
                 ch = fgetc(fp);
+                putchar(ch); // debug
                 fseek(fp, -2, SEEK_CUR);
-                puts("<byte AppendDoubleVector>"); // debug
                 vector_add(&v, &ch);
-                //puts("</byte AppendDoubleVector>"); // debug
             }
-            //PrintDoubleVectorReverse(container);
+            print_vector_reverse(&v);
         }
     }
 
