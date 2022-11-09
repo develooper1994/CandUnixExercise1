@@ -47,12 +47,14 @@ int i;
 #define VECTOR_TOTAL(vec) vector_total(&vec)
 #define VECTOR_FREE(vec) vector_free(&vec)
  
-typedef struct vector {
+struct vector {
     void **items;
     int capacity;
     int total;
-} vector;
- 
+};
+
+typedef struct vector vector;
+
 void vector_init(vector *);
 int vector_total(vector *);
 static void vector_resize(vector *, int);
@@ -79,6 +81,7 @@ void vector_delete(vector *v, int index);
  
 void vector_free(vector *v);
 
+void print_vector_reverse(vector *v);
 
 // ----------------------------- </myvector> -----------------------------------
-#endif /* doublevector */
+#endif
