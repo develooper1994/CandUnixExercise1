@@ -86,7 +86,7 @@ int main(int argc, char *argv[]){
     FILE* fp;
     char* filename;
     int index=0;
-    int nbyte=DEFAULT_BYTE_LENGHT, nline=DEFAULT_LINE, order=DEFAULT_ORDER;
+    long nbyte=DEFAULT_BYTE_LENGHT, nline=DEFAULT_LINE, order=DEFAULT_ORDER;
 
     opterr=0;
     // parse command line arguments
@@ -179,17 +179,17 @@ int main(int argc, char *argv[]){
     //default values
     if(bytes_flag){
         nbyte = bytes_arg != NULL ?
-        (int)strtol(bytes_arg, NULL, 10) :
+        strtol(bytes_arg, NULL, 10) :
         DEFAULT_BYTE_LENGHT;
     }
     if(lines_flag){
         nline = lines_arg != NULL ?
-        (int)strtol(lines_arg, NULL, 10) :
+        strtol(lines_arg, NULL, 10) :
         DEFAULT_LINE;
     }
     if(order_flag){
         order = order_arg != NULL ?
-        (int)strtol(order_arg, NULL, 10) :
+        strtol(order_arg, NULL, 10) :
         DEFAULT_ORDER;
     }
 
@@ -209,7 +209,8 @@ int main(int argc, char *argv[]){
 
         // how do you want to print?
         int ch = lines_flag ? DELIM : 0; // line_flag
-        int n  = lines_flag ? nline : nbyte;
+        long n  = lines_flag ? nline : nbyte;
+        printf("ch: %d || n: %ld || order: %ld \n", ch, n, order);
         if (order == 1) {
             if(t_flag) // default
                 result = print_text(fp, n, ch);
@@ -363,25 +364,21 @@ int print_text_last(FILE* fp, const long n, int ch){
     const long file_size = filesize(fp);
     fseek(fp, -1, SEEK_END); // read from end of file
 
-    puts("<CreateDoubleVector>"); // debug
     DoubleVector* container = CreateDoubleVector(DEFAULT_DATA_SIZE);
-    puts("</CreateDoubleVector>"); // debug
 
     long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
+    printf("ch: %d || n: %ld\n", ch, read_until); // debug
 
     if(n == -1){
         // print all file
         puts("<print all file>"); // debug
         for(; file_size - byte_count > 0; ++byte_count){
-            puts("<fgetc>"); // debug
             ch = fgetc(fp);
-            puts("</fgetc>"); // debug
-            putchar(ch); // debug
             fseek(fp, -2, SEEK_CUR);
-            puts("<AppendDoubleVector>"); // debug
+            //puts("<all AppendDoubleVector>"); // debug
             AppendDoubleVector(container, ch);
-            puts("</AppendDoubleVector>"); // debug
+            //puts("</all AppendDoubleVector>"); // debug
         }
         PrintDoubleVectorReverse(container);
     }
@@ -392,7 +389,9 @@ int print_text_last(FILE* fp, const long n, int ch){
                 if (ch == DELIM) ++line_count;
                 ch = fgetc(fp);
                 fseek(fp, -2, SEEK_CUR);
+                puts("<line AppendDoubleVector>"); // debug
                 AppendDoubleVector(container, ch);
+                puts("</line AppendDoubleVector>"); // debug
             }
             PrintDoubleVectorReverse(container);
         }
@@ -401,7 +400,9 @@ int print_text_last(FILE* fp, const long n, int ch){
             for(; (read_until - byte_count > 0) && (file_size - byte_count > 0); ++byte_count) {
                 ch = fgetc(fp);
                 fseek(fp, -2, SEEK_CUR);
+                puts("<byte AppendDoubleVector>"); // debug
                 AppendDoubleVector(container, ch);
+                //puts("</byte AppendDoubleVector>"); // debug
             }
             PrintDoubleVectorReverse(container);
         }
