@@ -9,6 +9,7 @@ Seçenekler:
 -x (hex)
 -h or --help
 -v or --verbose
+-V or --version
 [argümanlı]
 -c or --bytes, default 10
 -n or --lines, default 10
@@ -43,6 +44,7 @@ Burada -t "text olarak yazdır",
 #define DELIM   '\n'
 
 // function prototypes
+void print_help();
 long filesize(FILE* fp);
 int print_text(FILE *fp, const int n, int ch);
 int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
@@ -65,10 +67,11 @@ int main(int argc, char *argv[]){
         // no_argument
         {"enumurate", no_argument, NULL, 'e'},
         {"verbose", no_argument, NULL, 'v'},
+        {"version", no_argument, NULL, 'V'},
         {"help", no_argument, NULL, 'h'},
         {0,0,0,0}
     };
-    char options[] = "xotvhc:n:";
+    char options[] = "xotvVhc:n:";
     FILE* fp;
     char* filename;
     int index=0;
@@ -92,9 +95,13 @@ int main(int argc, char *argv[]){
             case 'v':
                 verbose_flag = 1;
                 break;
-            case 'h':
-                fprintf(stdout, "Version: %03s\nmyhead [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]", VERSION);
+            case 'V':
+                printf("%s\n", VERSION);
                 exit(EXIT_SUCCESS);
+                break;
+            case 'h':
+                print_help();
+                exit(EXIT_FAILURE);
             // optional_argument
             case 'c':
                 bytes_flag = 1;
@@ -103,7 +110,6 @@ int main(int argc, char *argv[]){
             case 'n':
                 lines_flag = 1;
                 lines_arg = optarg;
-                break;
                 break;
             case '?':
                 // parsing error check
@@ -137,6 +143,7 @@ int main(int argc, char *argv[]){
     if(optind == argc){
         // argc and optind only equal to 1 only if nothing specified
         fprintf(stderr, "At least one argument must be specified\n");
+        print_help();
         err_flag = 1;
         //exit(EXIT_FAILURE);
     }
@@ -200,6 +207,10 @@ int main(int argc, char *argv[]){
     }
 
     exit(EXIT_SUCCESS);
+}
+
+void print_help(){
+    fprintf(stdout, "Version: %s\nmyhead [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]", VERSION);
 }
 
 long filesize(FILE* fp) {
@@ -310,6 +321,5 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
     return !ferror(fp);
 }
 // ----------------------------- </print like linux head command> -----------------------------------
-
 
 // AUTHOR: Mustafa Selçuk Çağlar
