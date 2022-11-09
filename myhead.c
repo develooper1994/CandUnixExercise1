@@ -210,7 +210,7 @@ int main(int argc, char *argv[]){
 }
 
 void print_help(){
-    fprintf(stdout, "Version: %s\nmyhead [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]", VERSION);
+    fprintf(stdout, "Version: %s\nmyhead [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]\n", VERSION);
 }
 
 long filesize(FILE* fp) {
