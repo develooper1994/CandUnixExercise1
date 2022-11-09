@@ -1,6 +1,6 @@
 /*
 AUTHOR: Mustafa Selçuk Çağlar
-mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [files]
+mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]
 
 Seçenekler:
 [argümansız]
@@ -12,7 +12,7 @@ Seçenekler:
 [argümanlı]
 -c or --bytes, default: 10 (thick)
 -n or --lines, default: 10 (thick)
--d or --order < ascending >=0 (thick) | descending order <0 (working on it) >, default: ascending
+-d or --order < ascending ==0 (thick) | descending order !=0 (TODO: working on it) >, default: ascending
 
 Burada -t "text olarak yazdır",
 -o "ocatal olarak yazdır,
@@ -27,6 +27,7 @@ Burada -t "text olarak yazdır",
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <getopt.h>
 
 #include "doublevector.h"
@@ -37,26 +38,29 @@ Burada -t "text olarak yazdır",
 #define HEX_OCTAL_LINE_LENGHT 16
 
 // order
-#define ASCENDING_ORDER       0 // ascending order >=0
-#define DESCENDING_ORDER      -1 // descending order <0
+#define ASCENDING_ORDER       1 // ascending order ==0
+#define DESCENDING_ORDER      0 // descending order !=0
 #define DEFAULT_ORDER         ASCENDING_ORDER
 
 // enumurate
-#define DEFAULT_ENUMERATE     0 // enumurate >=0
+#define DEFAULT_ENUMERATE     1 // enumurate ==0
 
 #define PRINT_OCTAL           0
 #define PRINT_HEX             1
 #define PRINT_TEXT            2
+#define DEFAULT_PRINT         PRINT_TEXT
 
 #define DELIM   '\n'
 
 // function prototypes
+void print_help();
 long filesize(FILE* fp);
-int print_text(FILE *fp, const int n, int ch);
-int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
-
-//int print_text_last(FILE *fp, const int nline);
-//int print_hex_octal_last(FILE* f, const int nline, int hexflag);
+// ascending order
+int print_text(FILE *fp, const long n, int ch);
+int print_hex_octal(FILE* fp, const long n, int ch, int hexflag);
+// descending order
+int print_text_last(FILE* fp, const long n, int ch);
+//int print_hex_octal_last(FILE* f, const long n, int ch, int hexflag);
 
 int main(int argc, char *argv[]){
     // ----------------------------- <print like linux head command> -----------------------------------
@@ -74,14 +78,15 @@ int main(int argc, char *argv[]){
         // no_argument
         {"enumurate", no_argument, NULL, 'e'},
         {"verbose", no_argument, NULL, 'v'},
+        {"version", no_argument, NULL, 'V'},
         {"help", no_argument, NULL, 'h'},
         {0,0,0,0}
     };
-    char options[] = "xotvhc:n:d:";
+    char options[] = "xotvVhc:n:d:";
     FILE* fp;
     char* filename;
     int index=0;
-    int nbyte=-1, nline=-1, order=DEFAULT_ORDER;
+    int nbyte=DEFAULT_BYTE_LENGHT, nline=DEFAULT_LINE, order=DEFAULT_ORDER;
 
     opterr=0;
     // parse command line arguments
@@ -101,8 +106,12 @@ int main(int argc, char *argv[]){
             case 'v':
                 verbose_flag = 1;
                 break;
+            case 'V':
+                printf("%s\n", VERSION);
+                exit(EXIT_SUCCESS);
+                break;
             case 'h':
-                fprintf(stdout, "Version: %03s\nmycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending >=0 | descending order <0 >, default: ascending] [files]", VERSION);
+                print_help();
                 exit(EXIT_SUCCESS);
             // optional_argument
             case 'c':
@@ -149,6 +158,7 @@ int main(int argc, char *argv[]){
     if(optind == argc){
         // argc and optind only equal to 1 only if nothing specified
         fprintf(stderr, "At least one argument must be specified\n");
+        print_help();
         err_flag = 1;
         //exit(EXIT_FAILURE);
     }
@@ -200,20 +210,24 @@ int main(int argc, char *argv[]){
         // how do you want to print?
         int ch = lines_flag ? DELIM : 0; // line_flag
         int n  = lines_flag ? nline : nbyte;
-        if(t_flag) // default
-            result = print_text(fp, n, ch);
-        else if(x_flag)
-            result = print_hex_octal(fp, n, ch, PRINT_HEX);
-        else if(o_flag)
-            result = print_hex_octal(fp, n, ch, PRINT_OCTAL);
-        /*
-        if(t_flag)
-            result = print_text_last(fp, n, nline);
-        else if(x_flag)
-            result = print_hex_octal_last(fp, n, nline, PRINT_HEX);
-        else if(o_flag)
-            result = print_hex_octal_last(fp, n, nline, PRINT_OCTAL);
-        */
+        if (order == 1) {
+            if(t_flag) // default
+                result = print_text(fp, n, ch);
+            else if(x_flag)
+                result = print_hex_octal(fp, n, ch, PRINT_HEX);
+            else if(o_flag)
+                result = print_hex_octal(fp, n, ch, PRINT_OCTAL);
+        }
+        else {
+            if(t_flag)
+                result = print_text_last(fp, n, ch);
+            /*
+            else if(x_flag)
+                result = print_hex_octal_last(fp, n, ch, PRINT_HEX);
+            else if(o_flag)
+                result = print_hex_octal_last(fp, n, ch, PRINT_OCTAL);
+            */
+        }
 
         if(index != argc -1)
             putchar('\n');
@@ -227,6 +241,10 @@ int main(int argc, char *argv[]){
     exit(EXIT_SUCCESS);
 }
 
+void print_help(){
+    fprintf(stdout, "Version: %s\nmycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]\n", VERSION);
+}
+
 long filesize(FILE* fp) {
     fseek(fp, 0, SEEK_END); // seek to end of file
     long size = ftell(fp); // get current file pointer
@@ -238,13 +256,13 @@ long filesize(FILE* fp) {
 
 // ----------------------------- <print like linux head command> -----------------------------------
 // text
-int print_text(FILE *fp, const int n, int ch){
+int print_text(FILE *fp, const long n, int ch){
     // n == -1 => print all file
     long byte_count = 0, line_count = 0;
     const long file_size = filesize(fp);
     rewind(fp);
 
-    int read_until=n;
+    long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
 
     if(read_until == -1){
@@ -276,7 +294,7 @@ int print_text(FILE *fp, const int n, int ch){
 }
 
 // hex - octal
-int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
+int print_hex_octal(FILE* fp, const long n, int ch, int hexflag){
     // n == -1 => print all file
     int line_mod=0;
     long byte_count=0;
@@ -288,7 +306,7 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
     const long file_size = filesize(fp);
     rewind(fp);
 
-    int read_until=n;
+    long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
 
     if(read_until == -1){
@@ -338,6 +356,60 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
 // ----------------------------- </print like linux head command> -----------------------------------
 // ----------------------------- <print like linux tail command> -----------------------------------
 
+int print_text_last(FILE* fp, const long n, int ch){
+    // TODO: SEGFAULT!
+    // n == -1 => print all file
+    long byte_count=0, line_count=0;
+    const long file_size = filesize(fp);
+    fseek(fp, -1, SEEK_END); // read from end of file
+
+    puts("<CreateDoubleVector>"); // debug
+    DoubleVector* container = CreateDoubleVector(DEFAULT_DATA_SIZE);
+    puts("</CreateDoubleVector>"); // debug
+
+    long read_until=n;
+    //if(read_until<0) read_until = file_size + n + 1;
+
+    if(n == -1){
+        // print all file
+        puts("<print all file>"); // debug
+        for(; file_size - byte_count > 0; ++byte_count){
+            puts("<fgetc>"); // debug
+            ch = fgetc(fp);
+            puts("</fgetc>"); // debug
+            putchar(ch); // debug
+            fseek(fp, -2, SEEK_CUR);
+            puts("<AppendDoubleVector>"); // debug
+            AppendDoubleVector(container, ch);
+            puts("</AppendDoubleVector>"); // debug
+        }
+        PrintDoubleVectorReverse(container);
+    }
+    else {
+        if (ch == DELIM) {
+            // line_count < read_until
+            for(; (read_until - line_count > 0) && (file_size - byte_count > 0); ++byte_count) {
+                if (ch == DELIM) ++line_count;
+                ch = fgetc(fp);
+                fseek(fp, -2, SEEK_CUR);
+                AppendDoubleVector(container, ch);
+            }
+            PrintDoubleVectorReverse(container);
+        }
+        else {
+            // byte_count < read_until
+            for(; (read_until - byte_count > 0) && (file_size - byte_count > 0); ++byte_count) {
+                ch = fgetc(fp);
+                fseek(fp, -2, SEEK_CUR);
+                AppendDoubleVector(container, ch);
+            }
+            PrintDoubleVectorReverse(container);
+        }
+    }
+
+    DestroyDoubleVector(container);
+    return !ferror(fp);
+}
 
 
 // ----------------------------- </print like linux tail command> -----------------------------------
