@@ -1,5 +1,5 @@
-#ifndef doublevector
-#define doublevector
+#ifndef myvector
+#define myvector
 // ----------------------------- <myvector> -----------------------------------
 /*
 Usage:
@@ -70,7 +70,6 @@ int vector_total(vector *v);
 static void vector_resize(vector *v, int capacity);
  
 void vector_add(vector *v, void *item);
-}
  
 void vector_set(vector *v, int index, void *item);
  
