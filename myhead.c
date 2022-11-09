@@ -46,8 +46,8 @@ Burada -t "text olarak yazdır",
 // function prototypes
 void print_help();
 long filesize(FILE* fp);
-int print_text(FILE *fp, const int n, int ch);
-int print_hex_octal(FILE* fp, const int n, int ch, int hexflag);
+int print_text(FILE *fp, const long n, int ch);
+int print_hex_octal(FILE* fp, const long n, int ch, int hexflag);
 
 //int print_text_last(FILE *fp, const int nline);
 //int print_hex_octal_last(FILE* f, const int nline, int hexflag);
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
     FILE* fp;
     char* filename;
     int index=0;
-    int nbyte=-1, nline=-1;
+    long nbyte=DEFAULT_BYTE_LENGHT, nline=DEFAULT_LINE;
 
     opterr=0;
     // parse command line arguments
@@ -164,12 +164,12 @@ int main(int argc, char *argv[]){
     //default values
     if(bytes_flag){
         nbyte = bytes_arg != NULL ?
-        (int)strtol(bytes_arg, NULL, 10) :
+        strtol(bytes_arg, NULL, 10) :
         DEFAULT_BYTE_LENGHT;
     }
     if(lines_flag){
         nline = lines_arg != NULL ?
-        (int)strtol(lines_arg, NULL, 10) :
+        strtol(lines_arg, NULL, 10) :
         DEFAULT_LINE;
     }
 
@@ -189,7 +189,7 @@ int main(int argc, char *argv[]){
 
         // how do you want to print?
         int ch = lines_flag ? DELIM : 0; // line_flag
-        int n  = lines_flag ? nline : nbyte;
+        long n  = lines_flag ? nline : nbyte;
         if(t_flag) // default
             result = print_text(fp, n, ch);
         else if(x_flag)
@@ -223,13 +223,13 @@ long filesize(FILE* fp) {
 
 // ----------------------------- <print like linux head command> -----------------------------------
 // text
-int print_text(FILE *fp, const int n, int ch){
+int print_text(FILE *fp, const long n, int ch){
     // n == -1 => print all file
     long byte_count = 0, line_count = 0;
     const long file_size = filesize(fp);
     rewind(fp);
 
-    int read_until=n;
+    long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
 
     if(read_until == -1){
@@ -261,7 +261,7 @@ int print_text(FILE *fp, const int n, int ch){
 }
 
 // hex - octal
-int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
+int print_hex_octal(FILE* fp, const long n, int ch, int hexflag){
     // n == -1 => print all file
     int line_mod=0;
     long byte_count=0;
@@ -273,7 +273,7 @@ int print_hex_octal(FILE* fp, const int n, int ch, int hexflag){
     const long file_size = filesize(fp);
     rewind(fp);
 
-    int read_until=n;
+    long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
 
     if(read_until == -1){
