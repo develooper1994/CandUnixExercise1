@@ -35,12 +35,12 @@ void vector_set(vector *v, int index, void *item) {
         v->items[index] = item;
 }
  
-void *vector_get(vector *v, int index) {
+void* vector_get(vector *v, int index) {
     if (index >= 0 && index < v->total)
         return v->items[index];
     return NULL;
 }
- 
+
 void vector_delete(vector *v, int index) {
     if (index < 0 || index >= v->total)
         return;
@@ -60,6 +60,16 @@ void vector_delete(vector *v, int index) {
  
 void vector_free(vector *v) {
     free(v->items);
+}
+
+void print_vector_reverse(vector *v){
+    printf("vector_reverse");
+    int total = v->total;
+    for (int reverse_index = total; reverse_index >= 0; --reverse_index){
+        printf("%s", (char*)v->items[reverse_index]);
+    }
+
+    printf("\n");
 }
 
 // ----------------------------- </myvector> -----------------------------------
