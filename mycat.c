@@ -30,7 +30,7 @@ Burada -t "text olarak yazdır",
 #include <string.h>
 #include <getopt.h>
 
-#include "doublevector.h"
+#include "myvector.h"
 
 // symbolic constants
 #define DEFAULT_LINE          10
@@ -364,7 +364,8 @@ int print_text_last(FILE* fp, const long n, int ch){
     const long file_size = filesize(fp);
     fseek(fp, -1, SEEK_END); // read from end of file
 
-    DoubleVector* container = CreateDoubleVector(DEFAULT_DATA_SIZE);
+    vector v;
+    vector_init(&v);
 
     long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
@@ -377,10 +378,10 @@ int print_text_last(FILE* fp, const long n, int ch){
             ch = fgetc(fp);
             fseek(fp, -2, SEEK_CUR);
             //puts("<all AppendDoubleVector>"); // debug
-            AppendDoubleVector(container, ch);
+            vector_add(&v, &ch);
             //puts("</all AppendDoubleVector>"); // debug
         }
-        PrintDoubleVectorReverse(container);
+        //PrintDoubleVectorReverse(container);
     }
     else {
         if (ch == DELIM) {
@@ -390,10 +391,10 @@ int print_text_last(FILE* fp, const long n, int ch){
                 ch = fgetc(fp);
                 fseek(fp, -2, SEEK_CUR);
                 puts("<line AppendDoubleVector>"); // debug
-                AppendDoubleVector(container, ch);
+                vector_add(&v, &ch);
                 puts("</line AppendDoubleVector>"); // debug
             }
-            PrintDoubleVectorReverse(container);
+            //PrintDoubleVectorReverse(container);
         }
         else {
             // byte_count < read_until
@@ -401,14 +402,14 @@ int print_text_last(FILE* fp, const long n, int ch){
                 ch = fgetc(fp);
                 fseek(fp, -2, SEEK_CUR);
                 puts("<byte AppendDoubleVector>"); // debug
-                AppendDoubleVector(container, ch);
+                vector_add(&v, &ch);
                 //puts("</byte AppendDoubleVector>"); // debug
             }
-            PrintDoubleVectorReverse(container);
+            //PrintDoubleVectorReverse(container);
         }
     }
 
-    DestroyDoubleVector(container);
+    vector_free(&v);
     return !ferror(fp);
 }
 
