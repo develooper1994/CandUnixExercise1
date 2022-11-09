@@ -12,7 +12,7 @@
 #define CAPACITY_FACTOR   1
 
 typedef struct doubleVector{
-    void* data;
+    int* data;
     size_t size;
     size_t __capacity;
 }DoubleVector;
@@ -21,8 +21,8 @@ DoubleVector* CreateDoubleVector(size_t size);
 void DestroyDoubleVector(DoubleVector* dv);
 int InitializeDoubleVector(DoubleVector* dv, size_t size);
 void DeallocateDoubleVector(DoubleVector* dv);
-void ResizeDoubleVector(DoubleVector* dv, size_t new_size);
-void AppendDoubleVector(DoubleVector* dv, int element);
+int ResizeDoubleVector(DoubleVector* dv, size_t new_size);
+int AppendDoubleVector(DoubleVector* dv, int element);
 size_t AtDoubleVector(DoubleVector* dv, size_t index);
 void PrintDoubleVectorReverse(DoubleVector* dv);
 /*
