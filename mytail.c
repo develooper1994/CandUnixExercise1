@@ -1,6 +1,6 @@
 /*
 AUTHOR: Mustafa Selçuk Çağlar
-mytail [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]
+mytail [-V or --version]  [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]
 
 Seçenekler:
 [argümansız]
@@ -9,6 +9,8 @@ Seçenekler:
 -x (hex) (thick)
 -h or --help (thick)
 -v or --verbose (thick)
+-V or --version (thick)
+
 [argümanlı]
 -c or --bytes, default: 10 (thick)
 -n or --lines, default: 10 (thick)
@@ -219,7 +221,7 @@ int main(int argc, char *argv[]){
 }
 
 void print_help(){
-    fprintf(stdout, "Version: %s\nmytail [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]\n", VERSION);
+    fprintf(stdout, "Version: %s\nmytail [-V or --version]  [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [files]\n", VERSION);
 }
 
 long filesize(FILE* fp) {
