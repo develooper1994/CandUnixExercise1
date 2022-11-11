@@ -54,34 +54,18 @@ struct vector {
 };
 
 typedef struct vector vector;
-
-void vector_init(vector *);
-int vector_total(vector *);
-static void vector_resize(vector *, int);
-void vector_add(vector *, void *);
-void vector_set(vector *, int, void *);
-void *vector_get(vector *, int);
-void vector_delete(vector *, int);
-void vector_free(vector *);
  
 #endif
  
 void vector_init(vector *v);
 int vector_total(vector *v);
- 
 static void vector_resize(vector *v, int capacity);
- 
-void vector_add(vector *v, void *item);
- 
-void vector_set(vector *v, int index, void *item);
- 
-void *vector_get(vector *v, int index);
- 
-void vector_delete(vector *v, int index);
- 
+void vector_add(vector *v, void *item); 
+void vector_set(vector *v, int index, void *item); 
+void *vector_get(vector *v, int index); 
+void vector_delete(vector *v, int index); 
 void vector_free(vector *v);
-
-void print_vector_reverse(vector *v);
+//void print_vector_reverse(vector *v);
 
 // ----------------------------- </myvector> -----------------------------------
 #endif
