@@ -44,17 +44,17 @@ gcc -Wall -Wextra -Wpedantic -g3 -O0 -o mycat mycat.o myvector.o
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o myhead.o -c myhead.c
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o myhead myhead.o myvector.o
 
-./mycat -d 0 -n 10 mycat.c -x -v
-./mycat -d 0 -n 10 mycat.c -v
-./mycat -d 0 -n 10 mycat.c -x
-./mycat -d 0 -n 10 mycat.c -o
-./mycat -d 0 -n 10 mycat.c -t
+./myhead -d 0 -n 10 myhead.c -x -v
+./myhead -d 0 -n 10 myhead.c -v
+./myhead -d 0 -n 10 myhead.c -x
+./myhead -d 0 -n 10 myhead.c -o
+./myhead -d 0 -n 10 myhead.c -t
 
-./myhead -d 0 -c 10 myheadmyhead.c -x -v
-./myhead -d 0 -c 10 myheadmyhead.c -v
-./myhead -d 0 -c 10 myheadmyhead.c -x
-./myhead -d 0 -c 10 myheadmyhead.c -o
-./myhead -d 0 -c 10 myheadmyhead.c -t
+./myhead -d 0 -c 10 myhead.c -x -v
+./myhead -d 0 -c 10 myhead.c -v
+./myhead -d 0 -c 10 myhead.c -x
+./myhead -d 0 -c 10 myhead.c -o
+./myhead -d 0 -c 10 myhead.c -t
 
 ./myhead -d 0 myhead.c -x -v
 ./myhead -d 0 myhead.c -v
