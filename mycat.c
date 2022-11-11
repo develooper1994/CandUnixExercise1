@@ -1,6 +1,6 @@
 /*
 AUTHOR: Mustafa Selçuk Çağlar
-mycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]
+mycat [-V or --version] [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]
 
 Seçenekler:
 [argümansız]
@@ -9,6 +9,8 @@ Seçenekler:
 -x (hex) (thick)
 -h or --help (thick)
 -v or --verbose (thick)
+-V or --version (thick)
+
 [argümanlı]
 -c or --bytes, default: 10 (thick)
 -n or --lines, default: 10 (thick)
@@ -244,7 +246,7 @@ int main(int argc, char *argv[]){
 }
 
 void print_help(){
-    fprintf(stdout, "Version: %s\nmycat [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]\n", VERSION);
+    fprintf(stdout, "Version: %s\nmycat [-V or --version] [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]\n", VERSION);
 }
 
 long filesize(FILE* fp) {
