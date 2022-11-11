@@ -12,7 +12,7 @@ Seçenekler:
 [argümanlı]
 -c or --bytes, default: 10 (thick)
 -n or --lines, default: 10 (thick)
--d or --order < ascending ==0 (thick) | descending order !=0 (TODO: working on it) >, default: ascending
+-d or --order < ascending ==0 (thick) | descending order !=0 (thick) >, default: ascending
 
 Burada -t "text olarak yazdır",
 -o "ocatal olarak yazdır,
@@ -59,8 +59,10 @@ long filesize(FILE* fp);
 int print_text(FILE *fp, const long n, int ch);
 int print_hex_octal(FILE* fp, const long n, int ch, int hexflag);
 // descending order
+void print_vector_reverse(int* buffer, size_t byte_count);
+void print_vector_reverse_hex_octal(int* buffer, size_t byte_count, int hexflag);
 int print_text_last(FILE* fp, const long n, int ch);
-//int print_hex_octal_last(FILE* f, const long n, int ch, int hexflag);
+int print_hex_octal_last(FILE* fp, const long n, int ch, int hexflag);
 
 int main(int argc, char *argv[]){
     // ----------------------------- <print like linux head command> -----------------------------------
@@ -222,12 +224,11 @@ int main(int argc, char *argv[]){
         else {
             if(t_flag)
                 result = print_text_last(fp, n, ch);
-            /*
             else if(x_flag)
                 result = print_hex_octal_last(fp, n, ch, PRINT_HEX);
             else if(o_flag)
                 result = print_hex_octal_last(fp, n, ch, PRINT_OCTAL);
-            */
+            
         }
 
         if(index != argc -1)
@@ -277,8 +278,8 @@ int print_text(FILE *fp, const long n, int ch){
         if(ch == DELIM){
             // line_count < read_until
             for(; (read_until - line_count > 0) && (file_size - byte_count > 0); ++byte_count){
-                if(ch == DELIM) ++line_count;
                 ch = fgetc(fp);
+                if(ch == DELIM) ++line_count;
                 putchar(ch);
             }
         }
@@ -326,13 +327,12 @@ int print_hex_octal(FILE* fp, const long n, int ch, int hexflag){
         if(ch==DELIM){
             for(; (line_mod_count < read_until) && (line_mod_count < file_size); ++byte_count){
                 ch = fgetc(fp);
+                if(ch == DELIM) ++line_mod_count;
 
                 line_mod = byte_count % HEX_OCTAL_LINE_LENGHT;
                 if(line_mod == 0)
                     printf(off_str, byte_count);
                 printf(ch_str, ch, line_mod == HEX_OCTAL_LINE_LENGHT - 1 ? '\n': ' ');
-
-                if(ch == DELIM) ++line_mod_count;
             }
         }
         else {
@@ -357,15 +357,55 @@ int print_hex_octal(FILE* fp, const long n, int ch, int hexflag){
 // ----------------------------- </print like linux head command> -----------------------------------
 // ----------------------------- <print like linux tail command> -----------------------------------
 
+void print_vector_reverse(int* buffer, size_t byte_count){
+    puts("print_vector_reverse");
+    // integer-underflow ;)
+    for (size_t reverse_index = byte_count; reverse_index-- > 0; ){
+        int element = buffer[reverse_index];
+        putchar(element);
+    }
+    printf("\n");
+}
+
+void print_vector_reverse_hex_octal(int* buffer, size_t byte_count, int hexflag){
+    int line_mod=0;
+    const char *off_str, *ch_str;
+
+    off_str = hexflag ? "%07X" : "%012o";
+    ch_str = hexflag? "%02X%c" : "%03o%c";
+
+    puts("print_vector_reverse");
+    // integer-underflow ;)
+    size_t line_mod_count = 0;
+    for (size_t reverse_index = byte_count; reverse_index-- > 0; ){
+        int element = buffer[reverse_index];
+        line_mod = (line_mod_count++) % HEX_OCTAL_LINE_LENGHT;
+
+        if(line_mod == 0)
+            printf(off_str, byte_count);
+        printf(ch_str, element, line_mod == HEX_OCTAL_LINE_LENGHT - 1 ? '\n': ' ');
+    }
+    printf("\n");
+}
+
+// text
 int print_text_last(FILE* fp, const long n, int ch){
-    // TODO: SEGFAULT!
+    // TODO: myvector doesn't work well with integers
+    // TODO: !!! I am allocation much more memory than i needed !!!
     // n == -1 => print all file
     long byte_count=0, line_count=0;
+    const int file_start_offset=-1;
     const long file_size = filesize(fp);
-    fseek(fp, 0, SEEK_END); // read from end of file
+    size_t buffer_size = sizeof(int) * file_size + 1;
+    int* buffer = (int*)malloc(buffer_size);
+    if (buffer == NULL) {
+        printf("malloc failed\n");
+        exit(EXIT_FAILURE);
+    }
+    fseek(fp, file_start_offset, SEEK_END); // read from end of file
 
-    vector v;
-    vector_init(&v);
+    //vector v;
+    //vector_init(&v);
 
     long read_until=n;
     //if(read_until<0) read_until = file_size + n + 1;
@@ -374,41 +414,100 @@ int print_text_last(FILE* fp, const long n, int ch){
         // print all file
         puts("<print all file>"); // debug
         for(; file_size - byte_count > 0; ++byte_count){
-            ch = fgetc(fp);
-            putchar(ch); // debug
+            ch = fgetc(fp); //putchar(ch); // debug
+
             fseek(fp, -2, SEEK_CUR);
-            vector_add(&v, &ch);
+            buffer[byte_count] = ch; //vector_add(&v, &ch);
         }
-        print_vector_reverse(&v);
     }
     else {
         if (ch == DELIM) {
             // line_count < read_until
+            printf("<print lines %ld>\n", read_until); // debug
             for(; (read_until - line_count > 0) && (file_size - byte_count > 0); ++byte_count) {
+                ch = fgetc(fp); //putchar(ch); // debug
                 if (ch == DELIM) ++line_count;
-                ch = fgetc(fp);
-                putchar(ch); // debug
-                fseek(fp, -3, SEEK_CUR);
-                vector_add(&v, &ch);
+
+                fseek(fp, -2, SEEK_CUR);
+                buffer[byte_count] = ch; //vector_add(&v, &ch);
             }
-            print_vector_reverse(&v);
         }
         else {
             // byte_count < read_until
+            printf("<print bytes until %ld>\n", read_until); // debug
             for(; (read_until - byte_count > 0) && (file_size - byte_count > 0); ++byte_count) {
-                ch = fgetc(fp);
-                putchar(ch); // debug
+                ch = fgetc(fp); //putchar(ch); // debug
+
                 fseek(fp, -2, SEEK_CUR);
-                vector_add(&v, &ch);
+                buffer[byte_count] = ch; //vector_add(&v, &ch);
             }
-            print_vector_reverse(&v);
         }
     }
+    print_vector_reverse(buffer, byte_count); //print_vector_reverse(&v);
 
-    vector_free(&v);
+    free(buffer); //vector_free(&v);
     return !ferror(fp);
 }
 
+// hex - octal
+int print_hex_octal_last(FILE* fp, const long n, int ch, int hexflag){
+    // TODO: myvector doesn't work well with integers
+    // TODO: !!! I am allocation much more memory than i needed !!!
+    // n == -1 => print all file
+    int line_mod=0;
+    long byte_count=0;
+    const int file_start_offset=-1;
+    const long file_size = filesize(fp);
+    size_t buffer_size = sizeof(int) * file_size + 1;
+    int* buffer = (int*)malloc(buffer_size);
+    if (buffer == NULL) {
+        printf("malloc failed\n");
+        exit(EXIT_FAILURE);
+    }
+    fseek(fp, file_start_offset, SEEK_END); // read from end of file
+
+    long read_until=n;
+    //if(read_until<0) read_until = file_size + n + 1;
+
+    if(read_until == -1){
+        // print all file
+        puts("<print all file>"); // debug
+        for(; byte_count < file_size; ++byte_count){
+            ch = fgetc(fp); //putchar(ch); // debug
+            fseek(fp, -2, SEEK_CUR);
+            buffer[byte_count] = ch; //vector_add(&v, &ch);
+        }
+    }
+    else{
+        int line_mod_count = 0;
+        if(ch==DELIM){
+            for(; (line_mod_count < read_until) && (line_mod_count < file_size); ++byte_count){
+                ch = fgetc(fp);
+                if(ch == DELIM) ++line_mod_count;
+
+                fseek(fp, -2, SEEK_CUR);
+                buffer[byte_count] = ch; //vector_add(&v, &ch);
+            }
+        }
+        else {
+            // byte_count < read_until
+            for(; (line_mod_count < read_until) && (byte_count < file_size); ++byte_count){
+                ch = fgetc(fp);
+
+                fseek(fp, -2, SEEK_CUR);
+                buffer[byte_count] = ch; //vector_add(&v, &ch);
+            }
+        }
+    }
+    print_vector_reverse_hex_octal(buffer, byte_count, hexflag);
+
+    line_mod = byte_count % HEX_OCTAL_LINE_LENGHT;
+    if(line_mod != 0)
+        putchar('\n');
+
+    free(buffer);
+    return !ferror(fp);
+}
 
 // ----------------------------- </print like linux tail command> -----------------------------------
 
@@ -456,3 +555,4 @@ void print_last_lines(char *str, int n){
 
 
 // AUTHOR: Mustafa Selçuk Çağlar
+// Test: _print
