@@ -3,23 +3,23 @@ gcc -Wall -Wextra -Wpedantic -g3 -O0 -o myvector.o -c myvector.c
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o mycat.o -c mycat.c
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o mycat mycat.o myvector.o
 
-./mycat -d 0 -n 10 mycat.c -x -v
-./mycat -d 0 -n 10 mycat.c -v
-./mycat -d 0 -n 10 mycat.c -x
-./mycat -d 0 -n 10 mycat.c -o
-./mycat -d 0 -n 10 mycat.c -t
+./mycat -r -n 10 mycat.c -x -v
+./mycat -r -n 10 mycat.c -v
+./mycat -r -n 10 mycat.c -x
+./mycat -r -n 10 mycat.c -o
+./mycat -r -n 10 mycat.c -t
 
-./mycat -d 0 -c 10 mycat.c -x -v
-./mycat -d 0 -c 10 mycat.c -v
-./mycat -d 0 -c 10 mycat.c -x
-./mycat -d 0 -c 10 mycat.c -o
-./mycat -d 0 -c 10 mycat.c -t
+./mycat -r -c 10 mycat.c -x -v
+./mycat -r -c 10 mycat.c -v
+./mycat -r -c 10 mycat.c -x
+./mycat -r -c 10 mycat.c -o
+./mycat -r -c 10 mycat.c -t
 
-./mycat -d 0 mycat.c -x -v
-./mycat -d 0 mycat.c -v
-./mycat -d 0 mycat.c -x
-./mycat -d 0 mycat.c -o
-./mycat -d 0 mycat.c -t
+./mycat -r mycat.c -x -v
+./mycat -r mycat.c -v
+./mycat -r mycat.c -x
+./mycat -r mycat.c -o
+./mycat -r mycat.c -t
 
 ./mycat -n 10 mycat.c -x -v
 ./mycat -n 10 mycat.c -v
@@ -44,23 +44,23 @@ gcc -Wall -Wextra -Wpedantic -g3 -O0 -o mycat mycat.o myvector.o
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o myhead.o -c myhead.c
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o myhead myhead.o myvector.o
 
-./myhead -d 0 -n 10 myhead.c -x -v
-./myhead -d 0 -n 10 myhead.c -v
-./myhead -d 0 -n 10 myhead.c -x
-./myhead -d 0 -n 10 myhead.c -o
-./myhead -d 0 -n 10 myhead.c -t
+./myhead -r -n 10 myhead.c -x -v
+./myhead -r -n 10 myhead.c -v
+./myhead -r -n 10 myhead.c -x
+./myhead -r -n 10 myhead.c -o
+./myhead -r -n 10 myhead.c -t
 
-./myhead -d 0 -c 10 myhead.c -x -v
-./myhead -d 0 -c 10 myhead.c -v
-./myhead -d 0 -c 10 myhead.c -x
-./myhead -d 0 -c 10 myhead.c -o
-./myhead -d 0 -c 10 myhead.c -t
+./myhead -r -c 10 myhead.c -x -v
+./myhead -r -c 10 myhead.c -v
+./myhead -r -c 10 myhead.c -x
+./myhead -r -c 10 myhead.c -o
+./myhead -r -c 10 myhead.c -t
 
-./myhead -d 0 myhead.c -x -v
-./myhead -d 0 myhead.c -v
-./myhead -d 0 myhead.c -x
-./myhead -d 0 myhead.c -o
-./myhead -d 0 myhead.c -t
+./myhead -r myhead.c -x -v
+./myhead -r myhead.c -v
+./myhead -r myhead.c -x
+./myhead -r myhead.c -o
+./myhead -r myhead.c -t
 
 ./myhead -n 10 myhead.c -x -v
 ./myhead -n 10 myhead.c -v
@@ -85,17 +85,17 @@ gcc -Wall -Wextra -Wpedantic -g3 -O0 -o myhead myhead.o myvector.o
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o mytail.o -c mytail.c
 gcc -Wall -Wextra -Wpedantic -g3 -O0 -o mytail mytail.o mytail.o
 
-./mytail -d 0 -n 10 mytail.c -x -v
-./mytail -d 0 -n 10 mytail.c -v
-./mytail -d 0 -n 10 mytail.c -x
-./mytail -d 0 -n 10 mytail.c -o
-./mytail -d 0 -n 10 mytail.c -t
+./mytail -r -n 10 mytail.c -x -v
+./mytail -r -n 10 mytail.c -v
+./mytail -r -n 10 mytail.c -x
+./mytail -r -n 10 mytail.c -o
+./mytail -r -n 10 mytail.c -t
 
-./mytail -d 0 -c 10 mytail.c -x -v
-./mytail -d 0 -c 10 mytail.c -v
-./mytail -d 0 -c 10 mytail.c -x
-./mytail -d 0 -c 10 mytail.c -o
-./mytail -d 0 -c 10 mytail.c -t
+./mytail -r -c 10 mytail.c -x -v
+./mytail -r -c 10 mytail.c -v
+./mytail -r -c 10 mytail.c -x
+./mytail -r -c 10 mytail.c -o
+./mytail -r -c 10 mytail.c -t
 
 ./mytail -d 0 mytail.c -x -v
 ./mytail -d 0 mytail.c -v
