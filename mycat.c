@@ -1,24 +1,23 @@
 /*
 AUTHOR: Mustafa Selçuk Çağlar
-mycat [-V or --version] [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]
+mycat [-h or --help] [-V or --version] [-v or --verbose] [-r or --reverse] [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10]  [files]
 
 Seçenekler:
 [argümansız]
+-h or --help (thick)
+-V or --version (thick)
+-v or --verbose (thick)
+-r or --reverse (thick)
 -t (text) (default) (thick)
 -o (octal) (thick)
 -x (hex) (thick)
--h or --help (thick)
--v or --verbose (thick)
--V or --version (thick)
 
 [argümanlı]
 -c or --bytes, default: 10 (thick)
 -n or --lines, default: 10 (thick)
--d or --order < ascending ==0 (thick) | descending order !=0 (thick) >, default: ascending
 
-Burada -t "text olarak yazdır",
--o "ocatal olarak yazdır,
--x "hex olarak yazdır anlamına gelmektedir. Bu seçeneklerden yalnızca bir tanesi belirtilebilir ve bu seçeneklerden hiçbiri belirtilmemişse -t seçeneği belirtilmiş gibi işlem yapılmalıdır.
+Burada -t "text olarak yazdır" | -o "ocatal olarak yazdır | -x "hex olarak yazdır" anlamına gelmektedir. 
+Bu seçeneklerden yalnızca bir tanesi belirtilebilir ve bu seçeneklerden hiçbiri belirtilmemişse -t seçeneği belirtilmiş gibi işlem yapılmalıdır.
 --bytes isteğe bağlı (optional) argüman alabilen uzun bir seçenektir. Dosyanın başındaki ilk n satırı yazdırır. Bu uzun seçeneğin default değeri 10'dur. --verbose seçeneği birden fazla dosyanın yazdırıldığı durumda dosya isimlerinin de basılmasını sağlamaktadır. Programın örnek bir gerçekleştirim şöyle olabilir:
 */
 
@@ -40,8 +39,8 @@ Burada -t "text olarak yazdır",
 #define HEX_OCTAL_LINE_LENGHT 16
 
 // order
-#define ASCENDING_ORDER       1 // ascending order ==0
-#define DESCENDING_ORDER      0 // descending order !=0
+#define ASCENDING_ORDER       0 // ascending order !=0
+#define DESCENDING_ORDER      1 // descending order ==0
 #define DEFAULT_ORDER         ASCENDING_ORDER
 
 // enumurate
@@ -71,26 +70,25 @@ int main(int argc, char *argv[]){
     // create options, flags and arguments and other variables
     int result=0;
     int err_flag=0, t_flag=0, o_flag=0, x_flag=0, verbose_flag=0,
-          bytes_flag=0,    lines_flag=0,    order_flag=0;
-    char *bytes_arg=NULL, *lines_arg=NULL, *order_arg=NULL;
+          bytes_flag=0,    lines_flag=0,    reverse_flag=0;
+    char *bytes_arg=NULL, *lines_arg=NULL;
 
     struct option long_options[] = {
         // optional_argument
         {"bytes", optional_argument, NULL, 'c'},
         {"lines", optional_argument, NULL, 'n'},
-        {"order", optional_argument, NULL, 'd'},
         // no_argument
-        {"enumurate", no_argument, NULL, 'e'},
+        {"reverse", no_argument, NULL, 'r'},
         {"verbose", no_argument, NULL, 'v'},
         {"version", no_argument, NULL, 'V'},
         {"help", no_argument, NULL, 'h'},
         {0,0,0,0}
     };
-    char options[] = "xotvVhc:n:d:";
+    char options[] = "xotvVhdc:n:r";
     FILE* fp;
     char* filename;
     int index=0;
-    long nbyte=DEFAULT_BYTE_LENGHT, nline=DEFAULT_LINE, order=DEFAULT_ORDER;
+    long nbyte=DEFAULT_BYTE_LENGHT, nline=DEFAULT_LINE;
 
     opterr=0;
     // parse command line arguments
@@ -117,6 +115,9 @@ int main(int argc, char *argv[]){
             case 'h':
                 print_help();
                 exit(EXIT_SUCCESS);
+            case 'r':
+                reverse_flag = DESCENDING_ORDER;
+                break;
             // optional_argument
             case 'c':
                 bytes_flag = 1;
@@ -125,10 +126,6 @@ int main(int argc, char *argv[]){
             case 'n':
                 lines_flag = 1;
                 lines_arg = optarg;
-                break;
-            case 'd':
-                order_flag = 1;
-                order_arg = optarg;
                 break;
             case '?':
                 // parsing error check
@@ -191,11 +188,6 @@ int main(int argc, char *argv[]){
         strtol(lines_arg, NULL, 10) :
         DEFAULT_LINE;
     }
-    if(order_flag){
-        order = order_arg != NULL ?
-        strtol(order_arg, NULL, 10) :
-        DEFAULT_ORDER;
-    }
 
     // process according to flags
     for(index = optind; index < argc; ++index){
@@ -214,8 +206,8 @@ int main(int argc, char *argv[]){
         // how do you want to print?
         int ch = lines_flag ? DELIM : 0; // line_flag
         long n  = lines_flag ? nline : nbyte;
-        printf("ch: %d || n: %ld || order: %ld \n", ch, n, order);
-        if (order == 1) {
+        printf("ch: %d || n: %ld || is reverse: %d \n", ch, n, reverse_flag);
+        if (reverse_flag == ASCENDING_ORDER) {
             if(t_flag) // default
                 result = print_text(fp, n, ch);
             else if(x_flag)
@@ -246,7 +238,7 @@ int main(int argc, char *argv[]){
 }
 
 void print_help(){
-    fprintf(stdout, "Version: %s\nmycat [-V or --version] [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10] [-d or --order < ascending ==1 | descending order !=1 >, default: ascending] [files]\n", VERSION);
+    fprintf(stdout, "Version: %s\nmycat [-h or --help] [-V or --version] [-v or --verbose] [-r or --reverse] [-t(text)|-x(hex)|-o(octal)] [-c or --bytes < number >, default: 10] [-n or --lines < number >, default: 10]  [files]\n", VERSION);
 }
 
 long filesize(FILE* fp) {
@@ -512,49 +504,6 @@ int print_hex_octal_last(FILE* fp, const long n, int ch, int hexflag){
 }
 
 // ----------------------------- </print like linux tail command> -----------------------------------
-
-// https://www.geeksforgeeks.org/print-last-10-lines-of-a-given-file/
-/* Function to print last n lines of a given string */
-void print_last_lines(char *str, int n){
-    /* Base case */
-    if (n <= 0)
-       return;
- 
-    size_t cnt  = 0; // To store count of '\n' or DELIM
-    char *target_pos   = NULL; // To store the output position in str
- 
-    /* Step 1: Find the last occurrence of DELIM or '\n' */
-    target_pos = strrchr(str, DELIM);
- 
-    /* Error if '\n' is not present at all */
-    if (target_pos == NULL){
-        fprintf(stderr, "ERROR: string doesn't contain '\\n' character\n");
-        return;
-    }
- 
-    /* Step 2: Find the target position from where we need to print the string */
-    while (cnt < n){
-        // Step 2.a: Find the next instance of '\n'
-        while (str < target_pos && *target_pos != DELIM)
-            --target_pos;
- 
-         /* Step 2.b: skip '\n' and increment count of '\n' */
-        if (*target_pos ==  DELIM)
-            --target_pos, ++cnt;
- 
-        /* str < target_pos means str has less than 10 '\n' characters,
-           so break from loop */
-        else break;
-    }
- 
-    /* In while loop, target_pos is decremented 2 times, that's why target_pos + 2 */
-    if (str < target_pos)
-        target_pos += 2;
- 
-    // Step 3: Print the string from target_pos
-    printf("%s\n", target_pos);
-}
-
 
 // AUTHOR: Mustafa Selçuk Çağlar
 // Test: _print
