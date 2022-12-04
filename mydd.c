@@ -54,26 +54,33 @@ int main(int argc, char* argv[]){
         else {
             if(operand_is(name, "bs")){
                 block_size = strtol(val, NULL, 10);
-            }
-            else if(operand_is(name, "c")){
+		bs_flag=1;
+	    }
+	    else if(operand_is(name, "c")){
                 block_count = strtol(val, NULL, 10);
-            }
+		c_flag=1;
+	    }
         }
     }
     if(block_size<0 || block_count<0)
         exit_sys("Please enter a positive value");
 
-    // copy file
-    int fd_in, fd_out;
+        int fd_in, fd_out;
     fd_in = open(input_file, O_RDONLY);
     if(fd_in<0)
         exit_sys("input file cannot open!\n");
+
     struct stat st;
     if(fstat(fd_in, &st)<0)
         exit_sys("fstat");
     off_t len = st.st_size;
     __mode_t perms = st.st_mode;
+    if(!bs_flag)
+    	block_size = st.st_blksize;
+    if(!c_flag)
+	block_count = st.st_blocks;
 
+    // copy file
     fd_out = open(output_file, O_WRONLY|O_CREAT|O_TRUNC, perms);
     if(fd_out<0)
         exit_sys("output file cannot open!\n");
@@ -89,7 +96,7 @@ int main(int argc, char* argv[]){
         }
         len-=ret;
         ++block_counter;
-    } while (len>0 && ret >0 && block_counter<block_count);
+    } while (len>0 && ret >0 || block_counter<block_count);
 
     return EXIT_SUCCESS;
 }
